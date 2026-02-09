@@ -12,10 +12,11 @@ export default function Chat() {
   };
 
   // ✅ API configurable (Vite -> VITE_API_URL, CRA -> REACT_APP_API_URL)
-  const API_BASE =
-    (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
-    process.env.REACT_APP_API_URL ||
-    "http://localhost:8000";
+const API_BASE = (
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
+  process.env.REACT_APP_API_URL ||
+  "http://localhost:8000"
+).replace(/\/$/, "");
 
   const [messages, setMessages] = useState([
     {
