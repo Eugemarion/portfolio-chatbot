@@ -1,13 +1,26 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import os
 
 app = FastAPI()
 
-# ✅ CORS para React en localhost:3000
+# 🌐 CORS
+# - En local: http://localhost:3000 (CRA) o http://localhost:5173 (Vite)
+# - En producción: seteás FRONTEND_URL en Render (o donde deployes)
+frontend_url = os.getenv("FRONTEND_URL", "").strip()
+
+allow_origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+]
+
+if frontend_url:
+    allow_origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -19,6 +32,10 @@ class ChatRequest(BaseModel):
 @app.get("/")
 def read_root():
     return {"message": "Hola Euge, tu asistente está vivo 🧠✨", "demo": True}
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 def normalize(text: str) -> str:
     return " ".join(text.lower().strip().split())
@@ -133,7 +150,8 @@ def chat(req: ChatRequest):
 
     return {
         "reply": (
-            "Estoy en modo demo 😄. Puedo contarte sobre servicios, stack, proyectos o contacto. "
+            "Estoy en modo demo 😄.\n\n"
+            "Puedo contarte sobre servicios, stack, proyectos o contacto.\n"
             "Probá con: " + " | ".join(SUGGESTIONS)
         ),
         "demo": True,
